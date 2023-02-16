@@ -1,4 +1,6 @@
 using ChessBoardModel;
+using System.Drawing.Design;
+using System.Security.Cryptography.Xml;
 
 namespace ChessBoardClassic
 {
@@ -62,27 +64,61 @@ namespace ChessBoardClassic
             Button clickedButton = (Button)sender;
             Point location = (Point)clickedButton.Tag;
 
-            int x = location.X;
-            int y = location.Y;
+            int RowRank = location.X;
+            int ColFile = location.Y;
 
-            Cell currentCell = myBoard.theGrid[x, y];
+            Cell currentCell = myBoard.theGrid[RowRank, ColFile];
 
-            
 
-            // update the text on each button
+            // Clearing board of previous legal moves
             for (int i = 0; i < myBoard.Size; i++)
             {
                 for (int j = 0; j < myBoard.Size; j++)
                 {
-                    if (currentCell.Piece.Colour == "White")
-                    {
-                        clickedButton.BackColor = Color.White;
-                    } else if (currentCell.Piece.Colour == "Black")
-                    {
-                        clickedButton.BackColor = Color.FromArgb(50,50,50);
+                    myBoard.theGrid[i, j].LegalNextMove = false;
+                }
+            }
 
+            // Check legal moves for that piece.
+            // TODO: Create this as a method in Board and call it here.
+            // TODO: Change to Try Catch 
+            if (currentCell.Piece is not null)
+            {
+                var list = currentCell.Piece.GetMoves();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    Tuple<int, int> move = list[i];
+                    Cell destination = myBoard.theGrid[currentCell.RowRank + move.Item2, currentCell.ColumnFile + move.Item1];
+
+
+                    if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        destination.LegalNextMove = true;
                     }
 
+                }
+            }
+
+
+            
+
+
+            for (int i = 0; i < myBoard.Size; i++)
+            {
+                for (int j = 0; j < myBoard.Size; j++)
+                {
+                    if (!myBoard.theGrid[i,j].LegalNextMove)
+                    {
+                        btnGrid[i, j].BackColor = Color.FromArgb(255, 255, 255);
+                        continue;
+                    } else
+                    {
+                        btnGrid[i, j].BackColor = Color.FromArgb(0, 255, 0);
+                    }
                     
                 }
             }
