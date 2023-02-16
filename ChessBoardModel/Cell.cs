@@ -13,14 +13,13 @@ namespace ChessBoardModel
         // Col = File
         public int ColumnFile { get; set; }
 
-        // TODO: See about changing this to an object
         public Piece? Piece { get; set; }
-
-        public bool CurrentlyOccupied { get; set; }
 
         public bool LegalNextMove { get; set; }
 
-        public bool Takeable { get; set; }
+        public bool TakeableNextMove { get; set; }
+
+        public bool KingUnderAttack { get; set; }
 
         public Cell(int rank, int file)
         {

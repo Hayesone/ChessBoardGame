@@ -70,7 +70,37 @@ namespace ChessBoardClassic
             Cell currentCell = myBoard.theGrid[RowRank, ColFile];
 
 
+            // Check if button Cell clicked is a Legal Move
+            if (currentCell.LegalNextMove)
+                // If it is then move the Piece to that Cell
+
+
+
+
+
+
+
+
+
+
+
+
+            // Check if button press is a legal move
+            myBoard.LegalMove(currentCell);
+
             // Clearing board of previous legal moves
+            ClearBoardOfPreviousMoveFluff();
+            
+            // Mark the next legal moves cells with LegalMoves = true
+            myBoard.MarkNextLegalMoves(currentCell);
+
+            // Mark the Cells with colours assoicated with moves
+            MarkMovesWithColours();
+
+        }
+
+        private void ClearBoardOfPreviousMoveFluff()
+        {
             for (int i = 0; i < myBoard.Size; i++)
             {
                 for (int j = 0; j < myBoard.Size; j++)
@@ -78,48 +108,25 @@ namespace ChessBoardClassic
                     myBoard.theGrid[i, j].LegalNextMove = false;
                 }
             }
+        }
 
-            // Check legal moves for that piece.
-            // TODO: Create this as a method in Board and call it here.
-            // TODO: Change to Try Catch 
-            if (currentCell.Piece is not null)
-            {
-                var list = currentCell.Piece.GetMoves();
-                for (int i = 0; i < list.Count; i++)
-                {
-                    Tuple<int, int> move = list[i];
-                    Cell destination = myBoard.theGrid[currentCell.RowRank + move.Item2, currentCell.ColumnFile + move.Item1];
-
-
-                    if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        destination.LegalNextMove = true;
-                    }
-
-                }
-            }
-
-
-            
-
-
+        private void MarkMovesWithColours()
+        {
             for (int i = 0; i < myBoard.Size; i++)
             {
                 for (int j = 0; j < myBoard.Size; j++)
                 {
-                    if (!myBoard.theGrid[i,j].LegalNextMove)
+                    if (myBoard.theGrid[i, j].LegalNextMove == false)
                     {
                         btnGrid[i, j].BackColor = Color.FromArgb(255, 255, 255);
+                        
                         continue;
-                    } else
+                    }
+                    else
                     {
                         btnGrid[i, j].BackColor = Color.FromArgb(0, 255, 0);
                     }
-                    
+
                 }
             }
         }

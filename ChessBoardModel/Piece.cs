@@ -14,6 +14,9 @@ namespace ChessBoardModel
         // What Team the Piece is on white or black
         public string Colour { get; set; }
 
+        public bool IsWhite { get; set; }
+        public bool IsBlack { get; set; }
+
         // Removed location
         //
 
@@ -58,15 +61,15 @@ namespace ChessBoardModel
 
             // Pawn can move one or two squres on inital move, and one thereafter. Or, take on diagonal directly or using en-passant
             // Move forward one Rank
-            listMoves.Add(new Tuple<int, int>(1, 0));
+            listMoves.Add(new Tuple<int, int>(0, 1));
 
             // Move forward two Ranks, set as able to be en-passant
             // TODO: Check if this move if done, if done set EnPassantible = true;
-            listMoves.Add(new Tuple<int, int>(2, 0));
+            listMoves.Add(new Tuple<int, int>(0, 2));
 
             // Capture on diagonal
             listMoves.Add(new Tuple<int, int>(1, 1));
-            listMoves.Add(new Tuple<int, int>(1, -1));
+            listMoves.Add(new Tuple<int, int>(-1, 1));
 
             return listMoves;
         }

@@ -37,19 +37,76 @@ namespace ChessBoardModel
             // Pawns
             for (int i = 0; i < Size; i++)
             {
-                theGrid[i, 6].Piece = new Pawn { Colour="White"};
+                theGrid[i, 6].Piece = new Pawn { Colour = "White" };
+
                 theGrid[i, 1].Piece = new Pawn { Colour = "Black" };
             }
         }
 
-        public void MarkNextLegalMoves(Cell currentCell, string chessPiece)
+        public void MarkNextLegalMoves(Cell currentCell)
         {
-            // Check if cell is occupied
+            // Check legal moves for that piece. (Not to its own colour or out of bounds)
+            if (currentCell.Piece is not null)
+            {
+                var list = currentCell.Piece.GetMoves();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    Tuple<int, int> move = list[i];
 
-            
+                    try
+                    {
+                        // TODO: Fix this so that the code isnt redundent.
+                        if (currentCell.Piece.Colour == "White")
+                        {
+                            Cell destination = theGrid[currentCell.RowRank + -move.Item1, currentCell.ColumnFile + -move.Item2];
+
+                            if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                destination.LegalNextMove = true;
+                            }
+                        }
+                        else
+                        {
+                            Cell destination = theGrid[currentCell.RowRank + move.Item1, currentCell.ColumnFile + move.Item2];
+
+                            if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                destination.LegalNextMove = true;
+                            }
+                        }
+
+
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        continue;
+                    }
+
+                }
+            }
+
         }
 
-        
+        public void LegalMove(Cell currentCell)
+        {
+            if (!currentCell.LegalNextMove)
+            {
+                return;
+            } else
+            {
+                return;
+                // TODO: Needs to swap Obj Piece from old to new cell.
+                // TODO: If Piece is taken, show on the side of the game the Piece taken.
+            }
+        }
     }
     
 }
