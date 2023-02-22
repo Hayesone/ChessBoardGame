@@ -12,8 +12,11 @@ namespace ChessBoardClassic
         // 2D array of buttons whose values are determined by myBoard
         public Button[,] btnGrid = new Button[myBoard.Size, myBoard.Size];
 
+        public Cell ?previousCell { get; set; }
+
         public Form1()
         {
+            previousCell = null;
             InitializeComponent();
             populateGrid();
         }
@@ -42,6 +45,7 @@ namespace ChessBoardClassic
 
                     btnGrid[i, j].Location = new Point(i * buttonSize, j * buttonSize);
 
+                    // Checks which cells have a Piece on and sets their Name according to Piece, else shows their Array Index.
                     if (myBoard.theGrid[i, j].Piece is not null)
                     {
                         btnGrid[i, j].Text = myBoard.theGrid[i, j].Piece.Name;
@@ -66,66 +70,59 @@ namespace ChessBoardClassic
 
             int RowRank = location.X;
             int ColFile = location.Y;
-
             Cell currentCell = myBoard.theGrid[RowRank, ColFile];
 
-
-            // Check if button Cell clicked is a Legal Move
+            // If the button press has a cell with LegalNextMove == true; Move the piece to that location.
             if (currentCell.LegalNextMove)
-                // If it is then move the Piece to that Cell
+            {
+                myBoard.LegalMove(previousCell, currentCell);
+                myBoard.ClearBoardOfPreviousMoveFluff();
+                MarkupFormVisuals();
+                previousCell = currentCell;
+                return;
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-            // Check if button press is a legal move
-            myBoard.LegalMove(currentCell);
 
             // Clearing board of previous legal moves
-            ClearBoardOfPreviousMoveFluff();
+            myBoard.ClearBoardOfPreviousMoveFluff();
             
             // Mark the next legal moves cells with LegalMoves = true
             myBoard.MarkNextLegalMoves(currentCell);
 
             // Mark the Cells with colours assoicated with moves
-            MarkMovesWithColours();
+            MarkupFormVisuals();
+
+            // Set currentCell to previousCell to be used by the next button click.
+            previousCell = currentCell;
 
         }
 
-        private void ClearBoardOfPreviousMoveFluff()
+        private void MarkupFormVisuals()
         {
             for (int i = 0; i < myBoard.Size; i++)
             {
                 for (int j = 0; j < myBoard.Size; j++)
                 {
-                    myBoard.theGrid[i, j].LegalNextMove = false;
-                }
-            }
-        }
-
-        private void MarkMovesWithColours()
-        {
-            for (int i = 0; i < myBoard.Size; i++)
-            {
-                for (int j = 0; j < myBoard.Size; j++)
-                {
+                    // Show the colour of the legal moves for that piece.
                     if (myBoard.theGrid[i, j].LegalNextMove == false)
                     {
                         btnGrid[i, j].BackColor = Color.FromArgb(255, 255, 255);
-                        
-                        continue;
                     }
                     else
                     {
                         btnGrid[i, j].BackColor = Color.FromArgb(0, 255, 0);
                     }
+
+                    // Update Piece text after move.
+                    if (myBoard.theGrid[i, j].Piece is not null)
+                    {
+                        btnGrid[i, j].Text = myBoard.theGrid[i, j].Piece.Name;
+                    }
+                    else
+                    {
+                        btnGrid[i, j].Text = i + "|" + j;
+                    }
+
 
                 }
             }

@@ -45,66 +45,72 @@ namespace ChessBoardModel
 
         public void MarkNextLegalMoves(Cell currentCell)
         {
-            // Check legal moves for that piece. (Not to its own colour or out of bounds)
+            // Check current cell is has a Piece
             if (currentCell.Piece is not null)
             {
-                var list = currentCell.Piece.GetMoves();
-                for (int i = 0; i < list.Count; i++)
+                int cellRowRank = currentCell.RowRank;
+                int cellColFile = currentCell.ColumnFile;
+
+                var movesDict = currentCell.Piece.GetMoves();
+
+                foreach (KeyValuePair<string, Tuple<int, int>> keyValuePair in movesDict)
                 {
-                    Tuple<int, int> move = list[i];
+                    int rowMove = keyValuePair.Value.Item1;
+                    int colMove = keyValuePair.Value.Item2;
 
                     try
                     {
-                        // TODO: Fix this so that the code isnt redundent.
+                        Cell destination;
+
                         if (currentCell.Piece.Colour == "White")
                         {
-                            Cell destination = theGrid[currentCell.RowRank + -move.Item1, currentCell.ColumnFile + -move.Item2];
-
-                            if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                destination.LegalNextMove = true;
-                            }
+                            destination = theGrid[cellRowRank + -rowMove, cellColFile + -colMove];
                         }
                         else
                         {
-                            Cell destination = theGrid[currentCell.RowRank + move.Item1, currentCell.ColumnFile + move.Item2];
-
-                            if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                destination.LegalNextMove = true;
-                            }
+                            destination = theGrid[cellRowRank + rowMove, cellColFile + colMove];
                         }
 
-
+                        if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
+                        {
+                            continue;
+                        }
+                        else 
+                        {
+                            destination.LegalNextMove = true;
+                        }
                     }
                     catch (IndexOutOfRangeException)
                     {
                         continue;
                     }
 
+                    
                 }
             }
-
         }
 
-        public void LegalMove(Cell currentCell)
+        public void LegalMove(Cell previousCell, Cell currentCell)
         {
             if (!currentCell.LegalNextMove)
             {
                 return;
             } else
             {
-                return;
-                // TODO: Needs to swap Obj Piece from old to new cell.
                 // TODO: If Piece is taken, show on the side of the game the Piece taken.
+                currentCell.Piece = previousCell.Piece;
+                previousCell.Piece = null;
+            }
+        }
+
+        public void ClearBoardOfPreviousMoveFluff()
+        {
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
+                {
+                    theGrid[i, j].LegalNextMove = false;
+                }
             }
         }
     }

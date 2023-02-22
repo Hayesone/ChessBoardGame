@@ -14,36 +14,20 @@ namespace ChessBoardModel
         // What Team the Piece is on white or black
         public string Colour { get; set; }
 
-        public bool IsWhite { get; set; }
-        public bool IsBlack { get; set; }
-
-        // Removed location
-        //
-
         // Has Piece moved (for castling) need to check whether other piece to castle with has also not moved, and that king is not in check after move
         public bool HasMoved { get; set; } = false;
 
         // Can the Piece promote
         public bool CanPromote { get; set; } = false;
 
-        // Input Board, Cell: Calculate the moves for that piece on the board and set valid moves to Legal
-        public abstract List<Tuple<int, int>> GetMoves();
-
-
-        public void SetCurrentCell(Cell newCell)
-        {
-            // Need to perform checks before this can be run (king not in check by move)
-            //CurrentCell.CurrentlyOccupied = false;
-            //CurrentCell = newCell;
-            //CurrentCell.CurrentlyOccupied = true;
-
-        }
+        // Returns how that Piece can move.
+        public abstract Dictionary<string, Tuple<int, int>> GetMoves();
         
     }
 
     public class Pawn : Piece
     {
-        
+
         // TODO: Need to set this to be TRUE when pawn moves two sqaures on the first move, then false on its move after.
         public bool EnPassantible { get; set; } = false;
         public Pawn()
@@ -52,26 +36,26 @@ namespace ChessBoardModel
             CanPromote = true;
         }
 
-
-        // Take the currentCell Row and Column, and return only the moves that are within the Board.
-        public override List<Tuple<int, int>> GetMoves()
+        // Returns moves a Pawn can do.
+        public override Dictionary<string, Tuple<int, int>> GetMoves()
         {
-            // TODO: Handle Black moves, convert transform vectors to negatives.
-            var listMoves = new List<Tuple<int, int>>();
+            Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
+            {
+                {"forwardOne", new Tuple<int, int>(0, 1)},
+                {"captureLeft", new Tuple<int, int>(1, 1)},
+                {"captureRight", new Tuple<int, int>(-1, 1)},
+            };
 
-            // Pawn can move one or two squres on inital move, and one thereafter. Or, take on diagonal directly or using en-passant
-            // Move forward one Rank
-            listMoves.Add(new Tuple<int, int>(0, 1));
+            if (!HasMoved) 
+            {
+                // TODO: Move this being set in Board instead. Falsely set to true if you click on a Piece then click to empty Cell, should only be set if it is moved.
+                HasMoved = true;
+                // TODO: In Board, handle when a Piece is blocking this pawn, and disable the option to "forwardTwo"
+                movesDict.Add("forwardTwo", new Tuple<int, int>(0, 2));
+                return movesDict;
+            }
 
-            // Move forward two Ranks, set as able to be en-passant
-            // TODO: Check if this move if done, if done set EnPassantible = true;
-            listMoves.Add(new Tuple<int, int>(0, 2));
-
-            // Capture on diagonal
-            listMoves.Add(new Tuple<int, int>(1, 1));
-            listMoves.Add(new Tuple<int, int>(-1, 1));
-
-            return listMoves;
+            return movesDict;
         }
 
         
