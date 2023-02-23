@@ -10,7 +10,7 @@ namespace ChessBoardModel
 {
     public abstract class Piece
     {
-        public string Name {get; set;}
+        public string Name { get; set; }
         // What Team the Piece is on white or black
         public string Colour { get; set; }
 
@@ -62,14 +62,21 @@ namespace ChessBoardModel
     {
         public Knight()
         {
-
+            Name = "Knight";
         }
 
         public override Dictionary<string, Tuple<int, int>> GetMoves()
         {
             Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
             {
-
+                {"upLeftLeft", new Tuple<int, int>(-2, 1)},
+                {"upLeftRight", new Tuple<int, int>(-1, 2)},
+                {"upRightLeft", new Tuple<int, int>(1, 2)},
+                {"upRightRight", new Tuple<int, int>(2, 1)},
+                {"downLeftLeft", new Tuple<int, int>(-2, -1)},
+                {"downLeftRight", new Tuple<int, int>(-1, -2)},
+                {"downRightLeft", new Tuple<int, int>(1, -2)},
+                {"downRightRight", new Tuple<int, int>(2, -1)}
             };
             return movesDict;
         }
@@ -79,14 +86,17 @@ namespace ChessBoardModel
     {
         public Bishop()
         {
-
+            Name = "Bishop";
         }
 
         public override Dictionary<string, Tuple<int, int>> GetMoves()
         {
             Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
             {
-
+                {"upLeft", new Tuple<int, int>(-1, 1)},
+                {"upRight", new Tuple<int, int>(1, 1)},
+                {"downLeft", new Tuple<int, int>(-1, -1)},
+                {"downRight", new Tuple<int, int>(1, -1)}
             };
             return movesDict;
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace ChessBoardModel
 {
@@ -41,7 +42,12 @@ namespace ChessBoardModel
                 theGrid[i, 6].Piece = new Pawn { Colour = "White" };
 
                 theGrid[i, 1].Piece = new Pawn { Colour = "Black" };
+                // Knights
+
+                theGrid[i, 3].Piece = new Knight { Colour = "White" };
             }
+
+            
         }
 
         public void MarkNextLegalMoves(Cell currentCell)
@@ -49,33 +55,20 @@ namespace ChessBoardModel
             // Check current cell is has a Piece
             if (currentCell.Piece is not null)
             {
-                int cellRowRank = currentCell.RowRank;
-                int cellColFile = currentCell.ColumnFile;
-
                 var movesDict = currentCell.Piece.GetMoves();
 
+                // TODO: Need looping version for Queen, Rook, Bishop.
                 foreach (KeyValuePair<string, Tuple<int, int>> keyValuePair in movesDict)
                 {
-                    
                     string moveName = keyValuePair.Key;
                     int rowMove = keyValuePair.Value.Item1;
                     int colMove = keyValuePair.Value.Item2;
 
                     try
                     {
-                        Cell destination;
-
-                        if (currentCell.Piece.Colour == "White")
-                        {
-                            destination = theGrid[cellRowRank + -rowMove, cellColFile + -colMove];
-                            validateMove(destination, currentCell, moveName);
-
-                        }
-                        else
-                        {
-                            destination = theGrid[cellRowRank + rowMove, cellColFile + colMove];
-                            validateMove(destination, currentCell, moveName);
-                        }
+                        Cell destination = getCellFromCurrent(currentCell, (rowMove, colMove));
+                        validateMove(destination, currentCell, moveName);
+                        destination.LegalNextMove = true;
 
                     }
                     catch (IndexOutOfRangeException)
@@ -100,16 +93,17 @@ namespace ChessBoardModel
                 case Pawn:
                     // Diagonal moves
                     // TODO: Enable En-passants (enpassant can only happen on ranks 5 and 4.)
+                    // TODO: Enable Promotion (can only happen on the first and last ranks.)
                     if (moveName == "captureLeft" || moveName == "captureRight")
                     {
                         // Is there an opposing piece?
                         if (destination.Piece is not null && destination.Piece.Colour != currentCell.Piece.Colour)
                         {
-                            destination.LegalNextMove = true;
                             return;
                         }
                         else
                         {
+                            // No piece to capture and move to.
                             throw new InvalidMoveException();
                         }
                     }
@@ -118,37 +112,25 @@ namespace ChessBoardModel
                     {
                         if (destination.Piece is not null)
                         {
+                            // Piece is blocking move.
                             throw new InvalidMoveException();
                         } else
                         {
-                            destination.LegalNextMove = true;
                             return;
                         }
                     }
 
                     if (moveName == "forwardTwo")
                     {
-                        int RowRank = destination.RowRank;
-                        int ColFile = destination.ColumnFile;
-                        int moveColVector = 1;
-                        Cell jumpedOverCell;
+                        // Get the cell infront of the current Pawn.
+                        Cell jumpedOverCell = getCellFromCurrent(currentCell, (0, 1));
 
-                        if (currentCell.Piece.Colour == "White")
+                        if (jumpedOverCell.Piece is not null || destination.Piece is not null)
                         {
-                            jumpedOverCell = theGrid[currentCell.RowRank, currentCell.ColumnFile + -moveColVector];
-
-                        }
-                        else
-                        {
-                            jumpedOverCell = theGrid[currentCell.RowRank, currentCell.ColumnFile + moveColVector];
-                        }
-
-                        if (jumpedOverCell.Piece is not null)
-                        {
+                            // Pawns cannot jump forward over another piece or onto another piece.
                             throw new InvalidMoveException();
                         } else
                         {
-                            destination.LegalNextMove = true;
                             return;
                         }
 
@@ -157,7 +139,16 @@ namespace ChessBoardModel
                     return;
 
                 case Knight:
-                    return;
+                    // Throws exception if the Piece is on its own team.
+                    if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
+                    {
+                        throw new InvalidMoveException();
+                    }
+                    else
+                    {
+
+                        return;
+                    }
 
                 case Bishop:
                     return;
@@ -176,6 +167,29 @@ namespace ChessBoardModel
 
         }
 
+        private Cell getCellFromCurrent(Cell currentCell, (int, int) move)
+        {
+            // Gets the cell from the current using the translation vector given.
+            // Inverts the direction on so that the origin is always with the current Colour at the bottom of the screen.
+            // White gets -vector, and Black gets vector
+            int moveRankVector = move.Item1;
+            int moveColVector = move.Item2;
+            Cell destinationCell;
+
+            if (currentCell.Piece.Colour == "White")
+            {
+                destinationCell = theGrid[currentCell.RowRank + -moveRankVector, currentCell.ColumnFile + -moveColVector];
+
+            }
+            else
+            {
+                destinationCell = theGrid[currentCell.RowRank + moveRankVector, currentCell.ColumnFile + moveColVector];
+            }
+
+            return destinationCell;
+            
+        }
+
         public void LegalMove(Cell previousCell, Cell currentCell)
         {
             if (!currentCell.LegalNextMove)
@@ -186,7 +200,6 @@ namespace ChessBoardModel
                 // TODO: If Piece is taken, show on the side of the game the Piece taken.
                 currentCell.Piece = previousCell.Piece;
                 previousCell.Piece = null;
-
                 currentCell.Piece.HasMoved = true;
             }
         }
