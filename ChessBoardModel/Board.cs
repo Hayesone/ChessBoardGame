@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -55,6 +56,8 @@ namespace ChessBoardModel
 
                 foreach (KeyValuePair<string, Tuple<int, int>> keyValuePair in movesDict)
                 {
+                    
+                    string moveName = keyValuePair.Key;
                     int rowMove = keyValuePair.Value.Item1;
                     int colMove = keyValuePair.Value.Item2;
 
@@ -65,22 +68,21 @@ namespace ChessBoardModel
                         if (currentCell.Piece.Colour == "White")
                         {
                             destination = theGrid[cellRowRank + -rowMove, cellColFile + -colMove];
+                            validateMove(destination, currentCell, moveName);
+
                         }
                         else
                         {
                             destination = theGrid[cellRowRank + rowMove, cellColFile + colMove];
+                            validateMove(destination, currentCell, moveName);
                         }
 
-                        if (destination.Piece is not null && destination.Piece.Colour == currentCell.Piece.Colour)
-                        {
-                            continue;
-                        }
-                        else 
-                        {
-                            destination.LegalNextMove = true;
-                        }
                     }
                     catch (IndexOutOfRangeException)
+                    {
+                        continue;
+                    }
+                    catch (InvalidMoveException)
                     {
                         continue;
                     }
@@ -88,6 +90,90 @@ namespace ChessBoardModel
                     
                 }
             }
+        }
+
+        public void validateMove(Cell destination, Cell currentCell, string moveName)
+        {
+
+            switch (currentCell.Piece)
+            {
+                case Pawn:
+                    // Diagonal moves
+                    // TODO: Enable En-passants (enpassant can only happen on ranks 5 and 4.)
+                    if (moveName == "captureLeft" || moveName == "captureRight")
+                    {
+                        // Is there an opposing piece?
+                        if (destination.Piece is not null && destination.Piece.Colour != currentCell.Piece.Colour)
+                        {
+                            destination.LegalNextMove = true;
+                            return;
+                        }
+                        else
+                        {
+                            throw new InvalidMoveException();
+                        }
+                    }
+
+                    if (moveName == "forwardOne")
+                    {
+                        if (destination.Piece is not null)
+                        {
+                            throw new InvalidMoveException();
+                        } else
+                        {
+                            destination.LegalNextMove = true;
+                            return;
+                        }
+                    }
+
+                    if (moveName == "forwardTwo")
+                    {
+                        int RowRank = destination.RowRank;
+                        int ColFile = destination.ColumnFile;
+                        int moveColVector = 1;
+                        Cell jumpedOverCell;
+
+                        if (currentCell.Piece.Colour == "White")
+                        {
+                            jumpedOverCell = theGrid[currentCell.RowRank, currentCell.ColumnFile + -moveColVector];
+
+                        }
+                        else
+                        {
+                            jumpedOverCell = theGrid[currentCell.RowRank, currentCell.ColumnFile + moveColVector];
+                        }
+
+                        if (jumpedOverCell.Piece is not null)
+                        {
+                            throw new InvalidMoveException();
+                        } else
+                        {
+                            destination.LegalNextMove = true;
+                            return;
+                        }
+
+                    }
+
+                    return;
+
+                case Knight:
+                    return;
+
+                case Bishop:
+                    return;
+
+                case Rook:
+                    return;
+
+                case Queen:
+                    return;
+
+                case King:
+                    return;
+
+
+            }
+
         }
 
         public void LegalMove(Cell previousCell, Cell currentCell)
@@ -100,8 +186,12 @@ namespace ChessBoardModel
                 // TODO: If Piece is taken, show on the side of the game the Piece taken.
                 currentCell.Piece = previousCell.Piece;
                 previousCell.Piece = null;
+
+                currentCell.Piece.HasMoved = true;
             }
         }
+
+
 
         public void ClearBoardOfPreviousMoveFluff()
         {
@@ -114,5 +204,24 @@ namespace ChessBoardModel
             }
         }
     }
-    
+
+    [Serializable]
+    internal class InvalidMoveException : Exception
+    {
+        public InvalidMoveException()
+        {
+        }
+
+        public InvalidMoveException(string? message) : base(message)
+        {
+        }
+
+        public InvalidMoveException(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
+
+        protected InvalidMoveException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
 }

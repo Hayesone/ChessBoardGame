@@ -48,17 +48,99 @@ namespace ChessBoardModel
 
             if (!HasMoved) 
             {
-                // TODO: Move this being set in Board instead. Falsely set to true if you click on a Piece then click to empty Cell, should only be set if it is moved.
-                HasMoved = true;
                 // TODO: In Board, handle when a Piece is blocking this pawn, and disable the option to "forwardTwo"
                 movesDict.Add("forwardTwo", new Tuple<int, int>(0, 2));
-                return movesDict;
             }
 
             return movesDict;
         }
 
         
+    }
+
+    public class Knight : Piece
+    {
+        public Knight()
+        {
+
+        }
+
+        public override Dictionary<string, Tuple<int, int>> GetMoves()
+        {
+            Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
+            {
+
+            };
+            return movesDict;
+        }
+    }
+
+    public class Bishop : Piece
+    {
+        public Bishop()
+        {
+
+        }
+
+        public override Dictionary<string, Tuple<int, int>> GetMoves()
+        {
+            Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
+            {
+
+            };
+            return movesDict;
+        }
+    }
+
+    public class Rook : Piece
+    {
+        public Rook()
+        {
+
+        }
+
+        public override Dictionary<string, Tuple<int, int>> GetMoves()
+        {
+            Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
+            {
+
+            };
+            return movesDict;
+        }
+    }
+
+    public class Queen : Piece
+    {
+        public Queen()
+        {
+
+        }
+
+        public override Dictionary<string, Tuple<int, int>> GetMoves()
+        {
+            Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
+            {
+
+            };
+            return movesDict;
+        }
+    }
+
+    public class King : Piece
+    {
+        public King()
+        {
+
+        }
+
+        public override Dictionary<string, Tuple<int, int>> GetMoves()
+        {
+            Dictionary<string, Tuple<int, int>> movesDict = new Dictionary<string, Tuple<int, int>>()
+            {
+
+            };
+            return movesDict;
+        }
     }
 
 
